@@ -1,0 +1,18 @@
+{
+  "name": "secureauth",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Mai Tan Tai",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@uirouter/angularjs": "^1.1.1",
+    "angular": "^1.8.3",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7"
+  }
+}
