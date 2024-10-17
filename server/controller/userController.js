@@ -95,6 +95,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   const refreshToken = signRefreshToken(user._id);
 
   user.otp = undefined;
+  user.refreshToken = refreshToken;
   await user.save();
 
   res.status(200).json({

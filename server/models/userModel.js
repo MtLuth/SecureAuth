@@ -26,7 +26,6 @@ const usersSchema = new mongoose.Schema({
 
 usersSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
-    this.refreshToken = await bcrypt.hash(this.refreshToken, 12);
     return next();
   }
 

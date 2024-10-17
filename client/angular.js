@@ -1,4 +1,4 @@
-const module = angular.module("secureAuth", ["ui.router"]); // Đăng ký ui-router
+const module = angular.module("secureAuth", ["ui.router"]);
 
 module.config(function ($locationProvider, $stateProvider, $urlRouterProvider) {
   $urlRouterProvider.otherwise("/");

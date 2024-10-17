@@ -32,7 +32,6 @@ const protectRouter = catchAsync(async (req, res, next) => {
   }
 
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decoded.id);
   const validUser = await User.findById(decoded.id);
   if (!validUser) {
     return next(new AppError("The user invalid"));
@@ -43,8 +42,33 @@ const protectRouter = catchAsync(async (req, res, next) => {
   next();
 });
 
+const signNewAccessToken = catchAsync(async (req, res, next) => {
+  const refreshToken = req.body.refreshToken;
+  if (!refreshToken) {
+    return next(new AppError("Token is invalid or expired. Login again!", 400));
+  }
+  const decoded = await promisify(jwt.verify)(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+  const validUser = await User.findById(decoded.id);
+  if (!validUser) {
+    return next(new AppError("Token is invalid or expired. Login again"));
+  }
+
+  const accessToken = signToken(validUser._id);
+
+  req.user = validUser;
+
+  res.status(200).json({
+    validUser,
+    accessToken,
+  });
+});
+
 module.exports = {
   signToken,
   protectRouter,
   signRefreshToken,
+  signNewAccessToken,
 };
