@@ -1,7 +1,9 @@
 const User = require("../models/userModel");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const signToken = require("./authController");
+const { signToken } = require("./authController");
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 
 exports.register = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -42,4 +44,17 @@ exports.login = catchAsync(async (req, res, next) => {
     token: accessToken,
   });
   next();
+});
+
+exports.getInformationOfUser = catchAsync(async (req, res, next) => {
+  const token = req.headers.authorization.split(" ")[1];
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const id = decoded.id;
+  const user = await User.findById(id);
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
 });
