@@ -1,16 +1,21 @@
+const sendEmail = require("../mail/mailService");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { signToken } = require("./authController");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-
+const { signToken, signRefreshToken } = require("./authController");
 exports.register = catchAsync(async (req, res, next) => {
+  if (!req.body.confirm_password) {
+    return next(new AppError("Confirm password is required", 400));
+  }
+  if (req.body.confirm_password !== req.body.password) {
+    return next(new AppError("Passwords are not the same", 400));
+  }
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    confirmPassword: req.body.confirm_password,
   });
   res.status(201).json({
     message: "OK",
@@ -22,10 +27,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
-      status: "fail",
-      error: "Please provide email and password",
-    });
+    return next(new AppError("Please input email and password!", 400));
   }
 
   const user = await User.findOne({ email: email }).select("+password");
@@ -36,14 +38,27 @@ exports.login = catchAsync(async (req, res, next) => {
     });
   }
 
-  const accessToken = signToken(user._id);
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
+  await sendEmail({
+    from: "Secure Auth",
+    to: email,
+    subject: "MFA OTP",
+    message: `Your OTP is: ${otp}`,
+  });
+
+  user.otp = otp.toString();
+  await user.save();
+
+  setTimeout(() => {
+    user.otp = undefined;
+    user.save();
+  }, 1 * 60 * 1000);
 
   res.status(200).json({
     message: "Successfully",
-    data: user,
-    token: accessToken,
+    data: `OTP has been sended to ${email}`,
   });
-  next();
 });
 
 exports.getInformationOfUser = catchAsync(async (req, res, next) => {
@@ -55,6 +70,38 @@ exports.getInformationOfUser = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       user,
+    },
+  });
+});
+
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+  const { email, otp } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  if (!user.otp) {
+    return next(new AppError("Invalid or expired OTP", 400));
+  }
+
+  if (user.otp !== otp.toString()) {
+    return next(new AppError("Incorrect OTP", 400));
+  }
+
+  console.log(user._id);
+  const accessToken = signToken(user._id);
+  const refreshToken = signRefreshToken(user._id);
+
+  user.otp = undefined;
+  await user.save();
+
+  res.status(200).json({
+    status: "success",
+    message: {
+      user,
+      accessToken,
     },
   });
 });

@@ -12,27 +12,25 @@ const usersSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     select: false,
   },
-  confirmPassword: {
-    type: String,
-    required: [true, "Confirm password is required"],
-    validate: {
-      validator: function (el) {
-        return el === this.password;
-      },
-      message: "Passwords are not the same!",
-    },
-  },
   name: {
     type: String,
     required: [true, "Name is required"],
   },
+  refreshToken: {
+    type: String,
+  },
+  otp: {
+    type: String,
+  },
 });
 
 usersSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) {
+    this.refreshToken = await bcrypt.hash(this.refreshToken, 12);
+    return next();
+  }
 
   this.password = await bcrypt.hash(this.password, 12);
-  this.confirmPassword = undefined;
   next();
 });
 

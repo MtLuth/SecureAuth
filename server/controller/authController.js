@@ -10,6 +10,12 @@ const signToken = (id) => {
   });
 };
 
+const signRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+  });
+};
+
 const protectRouter = catchAsync(async (req, res, next) => {
   let token;
 
@@ -40,4 +46,5 @@ const protectRouter = catchAsync(async (req, res, next) => {
 module.exports = {
   signToken,
   protectRouter,
+  signRefreshToken,
 };
