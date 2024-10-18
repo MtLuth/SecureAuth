@@ -13,19 +13,20 @@ module.config(function ($locationProvider, $stateProvider, $urlRouterProvider) {
       url: "/login",
       templateUrl: "templates/login.html",
       controller: "LoginController",
+    })
+    .state("verify", {
+      url: "/verify-otp/:id",
+      templateUrl: "templates/verifyOTP.html",
+      controller: "OTPController",
+    })
+    .state("userInfo", {
+      url: "/user-info/:id",
+      templateUrl: "/templates/userInfo.html",
+      controller: "UserInfoController",
     });
 
   $locationProvider.html5Mode({
     enabled: true,
     requireBase: false,
   });
-});
-
-module.controller("HomeController", function ($scope) {
-  $scope.css = "css/index.css";
-});
-
-module.controller("LoginController", function ($scope) {
-  $scope.message = "login";
-  console.log($scope.message);
 });

@@ -11,7 +11,7 @@ const usersRouter = express.Router();
 
 usersRouter.post("/register", register);
 usersRouter.post("/login", login);
-usersRouter.post("/verify-otp", verifyOTP);
+usersRouter.post("/verify-otp/:id", verifyOTP);
 usersRouter.post("/refresh-token", authController.signNewAccessToken);
 usersRouter
   .route("/information")

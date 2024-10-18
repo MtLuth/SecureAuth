@@ -34,30 +34,14 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return res.status(401).json({
       status: "fail",
-      error: "Incorrect Email or Password",
+      message: "Incorrect Email or Password",
     });
   }
-
-  const otp = Math.floor(100000 + Math.random() * 900000);
-
-  await sendEmail({
-    from: "Secure Auth",
-    to: email,
-    subject: "MFA OTP",
-    message: `Your OTP is: ${otp}`,
-  });
-
-  user.otp = otp.toString();
-  await user.save();
-
-  setTimeout(() => {
-    user.otp = undefined;
-    user.save();
-  }, 1 * 60 * 1000);
 
   res.status(200).json({
     message: "Successfully",
     data: `OTP has been sended to ${email}`,
+    userID: user._id,
   });
 });
 
@@ -75,9 +59,10 @@ exports.getInformationOfUser = catchAsync(async (req, res, next) => {
 });
 
 exports.verifyOTP = catchAsync(async (req, res, next) => {
-  const { email, otp } = req.body;
+  const id = req.params.id;
+  const { otp } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findById(id);
   if (!user) {
     return next(new AppError("User not found", 404));
   }
@@ -100,9 +85,9 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    message: {
-      user,
-      accessToken,
+    data: {
+      user: user,
+      accessToken: accessToken,
     },
   });
 });
