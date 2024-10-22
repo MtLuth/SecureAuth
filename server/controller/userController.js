@@ -46,20 +46,44 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.getInformationOfUser = catchAsync(async (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const id = decoded.id;
-  const user = await User.findById(id);
-  res.status(200).json({
-    status: "success",
-    data: {
-      user: {
-        name: user.name,
-        id: user._id,
-        email: user.email,
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      status: "fail",
+      message: "You are not logged in! Please log in to get access.",
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    const id = decoded.id;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found!",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: {
+          name: user.name,
+          id: user._id,
+          email: user.email,
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Invalid or expired token!",
+    });
+  }
 });
 
 exports.verifyOTP = catchAsync(async (req, res, next) => {
