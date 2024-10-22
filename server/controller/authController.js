@@ -30,11 +30,15 @@ const protectRouter = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(new AppError("You must login to access this route!", 401));
   }
-
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  let decoded;
+  try {
+    decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return next(new AppError("Invalid or expired refresh token!", 401));
+  }
   const validUser = await User.findById(decoded.id);
   if (!validUser) {
-    return next(new AppError("The user invalid"));
+    return next(new AppError("The user invalid", 401));
   }
 
   req.user = validUser;
@@ -53,7 +57,7 @@ const signNewAccessToken = catchAsync(async (req, res, next) => {
   );
   const validUser = await User.findById(decoded.id);
   if (!validUser) {
-    return next(new AppError("Token is invalid or expired. Login again"));
+    return next(new AppError("Token is invalid or expired. Login again"), 401);
   }
 
   const accessToken = signToken(validUser._id);

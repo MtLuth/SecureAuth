@@ -53,7 +53,11 @@ exports.getInformationOfUser = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: {
-      user,
+      user: {
+        name: user.name,
+        id: user._id,
+        email: user.email,
+      },
     },
   });
 });

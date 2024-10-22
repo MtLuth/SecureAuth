@@ -23,6 +23,12 @@ app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+app.use(express.static(`${__dirname}/../client`));
+
+app.get("*", (req, res) => {
+  res.sendFile(`${__dirname}/../client/index.html`);
+});
+
 app.use(handleGlobalError);
 
 module.exports = app;

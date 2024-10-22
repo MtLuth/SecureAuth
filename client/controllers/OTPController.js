@@ -11,9 +11,16 @@ module.controller(
           "refreshToken",
           responseData.data.user.refreshToken
         );
-        $state.go("userInfo", { id: userID });
+        $state.go("userInfo");
       } catch (error) {
-        console.log(error);
+        alert(error.data.message);
+      }
+    };
+
+    $scope.resendOTP = function () {
+      const isResend = window.confirm("Bạn có chắc muốn gửi lại OTP không?");
+      if (isResend) {
+        AuthService.sendOTP(userID);
       }
     };
   }

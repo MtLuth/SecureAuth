@@ -1,19 +1,17 @@
 const nodemailer = require("nodemailer");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const { transporter } = require("../mail/mailService");
 const sendEmail = require("../mail/mailService");
 const User = require("../models/userModel");
 
 exports.resendOTP = catchAsync(async (req, res, next) => {
-  const body = req.body;
+  const id = req.params.id;
 
-  const email = body.email;
-  if (!email) {
-    return next(new AppError("Email is required!", 400));
+  if (!id) {
+    return next(new AppError("User not found!", 400));
   }
 
-  const user = await User.findOne({ email: email });
+  const user = await User.findById(id);
   if (!user) {
     return next(new AppError("Email is not exist!"));
   }
@@ -22,7 +20,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
 
   await sendEmail({
     from: "Server",
-    to: email,
+    to: user.email,
     message: `Your OTP is: ${otp}`,
     subject: "MFA OTP",
   });
@@ -37,6 +35,6 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "Successfully!",
-    message: `OTP has been resended to ${email}`,
+    message: `OTP has been resended to ${user.email}`,
   });
 });

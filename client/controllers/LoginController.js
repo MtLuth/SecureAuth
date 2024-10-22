@@ -3,18 +3,18 @@ module.controller("LoginController", [
   "AuthService",
   "$state",
   function ($scope, AuthService, $state) {
+    if (AuthService.isAuthenticated()) {
+      $state.go("userInfo");
+      return;
+    }
     $scope.login = async function () {
-      console.log($scope.email);
-      console.log($scope.password);
-
       try {
         const response = await AuthService.login({
           email: $scope.email,
           password: $scope.password,
         });
-        const to = $scope.email;
         const userID = response.data.userID;
-        AuthService.sendOTP(to);
+        AuthService.sendOTP(userID);
         $state.go("verify", { id: userID });
       } catch (error) {
         alert(error.data.message);

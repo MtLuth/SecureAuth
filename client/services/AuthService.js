@@ -5,8 +5,8 @@ module.factory("AuthService", function ($http) {
     login: function (credentials) {
       return $http.post(`${apiUrl}/users/login`, credentials);
     },
-    sendOTP: function (email) {
-      return $http.post(`${apiUrl}/mail-service/send-otp`, { email: email });
+    sendOTP: function (id) {
+      return $http.post(`${apiUrl}/mail-service/send-otp/${id}`);
     },
     verifyOTP: function (id, otp) {
       return $http.post(`${apiUrl}/users/verify-otp/${id}`, {
@@ -14,7 +14,9 @@ module.factory("AuthService", function ($http) {
       });
     },
     refreshAccessToken: function (refreshToken) {
-      return $http.post(`${apiUrl}/refresh-token`, { token: refreshToken });
+      return $http.post(`${apiUrl}/users/refresh-token`, {
+        token: refreshToken,
+      });
     },
 
     isAuthenticated: function () {

@@ -7,6 +7,6 @@ const {
 
 const mailRouter = express.Router();
 
-mailRouter.post("/send-otp", resendOTP);
+mailRouter.post("/send-otp/:id", resendOTP);
 
 module.exports = mailRouter;

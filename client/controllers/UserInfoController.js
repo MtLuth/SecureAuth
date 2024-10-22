@@ -1,11 +1,17 @@
-module.controller("UserInfoController", function ($scope, AuthService, $state) {
-  $scope.user = {
-    name: "John Doe",
-    email: "taihk2@gmail.com",
-  };
+module.controller(
+  "UserInfoController",
+  function ($scope, UserService, $state, $http) {
+    UserService.getInformation().then(function (response) {
+      const userData = response.data.data.user;
 
-  $scope.logout = function () {
-    AuthService.logout();
-    $state.go("login");
-  };
-});
+      $scope.name = userData.name;
+      $scope.email = userData.email;
+    });
+
+    $scope.logout = function () {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      $state.go("home");
+    };
+  }
+);
