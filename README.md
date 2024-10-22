@@ -9,7 +9,8 @@ AngularJS: 1.x
 **Cài đặt và cấu hình**
 git clone https://github.com/your-username/your-project.git
 
-**Chỉnh sửa file .env **
+**Chỉnh sửa file config.env**
+  
   Cấu hình máy chủ
   PORT=8080  # Cổng mặc định cho ứng dụng
   
