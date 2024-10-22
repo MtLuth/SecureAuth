@@ -7,7 +7,7 @@ Node.js: v10.x
 AngularJS: 1.x
 
 **Cài đặt và cấu hình**
-git clone https://github.com/your-username/your-project.git
+git clone [https://github.com/your-username/your-project.gi](https://github.com/MtLuth/SecureAuth.git)t
 
 **Chỉnh sửa file config.env**
   
