@@ -34,7 +34,7 @@ module.config(function ($locationProvider, $stateProvider, $urlRouterProvider) {
 module.factory("authInterceptor", function ($q, $state, $injector) {
   return {
     responseError: function (rejection) {
-      const $http = $injector.get("$http"); // Inject $http manually to avoid circular dependency
+      const $http = $injector.get("$http");
       if (rejection.status === 401) {
         const refreshToken = localStorage.getItem("refreshToken");
         if (refreshToken) {
@@ -45,17 +45,15 @@ module.factory("authInterceptor", function ($q, $state, $injector) {
             .then(function (response) {
               localStorage.setItem("accessToken", response.data.accessToken);
               rejection.config.headers.Authorization = `Bearer ${response.data.accessToken}`;
-              return $http(rejection.config); // Retry original request
+              return $http(rejection.config);
             })
             .catch(function (error) {
-              // Nếu refreshToken hết hạn hoặc không hợp lệ, chuyển hướng đến trang login
               localStorage.removeItem("accessToken");
               localStorage.removeItem("refreshToken");
               $state.go("login");
               return $q.reject(rejection);
             });
         } else {
-          // Nếu không có refreshToken, chuyển hướng về trang đăng nhập
           localStorage.removeItem("accessToken");
           $state.go("login");
           return $q.reject(rejection);
